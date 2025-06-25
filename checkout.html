@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    .checkout-container {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-bottom: 1rem;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+    }
+    .btn {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
+    }
+    .btn:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <h2>Order Summary</h2>
+    <div id="cart-summary"></div>
+    <div class="summary-item"><strong>Total:</strong> <span id="total-price">₹0</span></div>
+
+    <h2 style="margin-top: 2rem;">Checkout Details</h2>
+    <form id="checkout-form">
+      <input type="text" id="full-name" placeholder="Full Name" required style="width: 100%; margin: 0.5rem 0; padding: 0.5rem;" />
+      <input type="text" id="address" placeholder="Shipping Address" required style="width: 100%; margin: 0.5rem 0; padding: 0.5rem;" />
+      <input type="tel" id="phone" placeholder="Phone Number" required style="width: 100%; margin: 0.5rem 0; padding: 0.5rem;" />
+      <select id="payment-method" required style="width: 100%; margin: 0.5rem 0; padding: 0.5rem;">
+        <option value="">Select Payment Method</option>
+        <option value="cod">Cash on Delivery</option>
+        <option value="card">Credit/Debit Card</option>
+        <option value="upi">UPI</option>
+      </select>
+      <button type="submit" class="btn">Place Order</button>
+    </form>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB1MwpAttT8RqbLUL9Qp4IFL80vXe8fvIE",
+      authDomain: "catliza-ecom.firebaseapp.com",
+      projectId: "catliza-ecom",
+      storageBucket: "catliza-ecom.firebasestorage.app",
+      messagingSenderId: "1084646474134",
+      appId: "1:1084646474134:web:642439b16cff42a5759db7"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUser = null;
+    let cart = [];
+    let total = 0;
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        currentUser = user;
+        loadCart();
+      }
+    });
+
+    function loadCart() {
+      cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const summary = document.getElementById('cart-summary');
+      total = 0;
+
+      if (cart.length === 0) {
+        summary.innerHTML = '<p>Your cart is empty.</p>';
+        document.getElementById('checkout-form').style.display = 'none';
+        return;
+      }
+
+      summary.innerHTML = '';
+      cart.forEach(item => {
+        const line = document.createElement('div');
+        line.className = 'summary-item';
+        line.innerHTML = `<span>${item.name} x ${item.quantity}</span><span>₹${item.price * item.quantity}</span>`;
+        summary.appendChild(line);
+        total += item.price * item.quantity;
+      });
+
+      document.getElementById('total-price').textContent = `₹${total}`;
+    }
+
+    document.getElementById('checkout-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('full-name').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const payment = document.getElementById('payment-method').value;
+
+      if (!name || !address || !phone || !payment) {
+        alert("Please fill in all checkout fields.");
+        return;
+      }
+
+      const orderData = {
+        uid: currentUser.uid,
+        name,
+        address,
+        phone,
+        paymentMethod: payment,
+        items: cart,
+        total,
+        timestamp: new Date().toISOString()
+      };
+
+      if (payment === 'cod') {
+        firebase.database().ref('orders').push(orderData).then(() => {
+          alert("✅ Order placed successfully!");
+          localStorage.removeItem('cart');
+          window.location.href = "index.html";
+        }).catch(err => {
+          alert("❌ Failed to place order: " + err.message);
+        });
+        return;
+      }
+
+      const options = {
+        key: "rzp_live_UoAJAg1Vurg6wM", // ✅ Replace with your Razorpay key
+        amount: total * 100,
+        currency: "INR",
+        name: "Catliza E-Com",
+        description: "Order Payment",
+        handler: function (response) {
+          orderData.paymentId = response.razorpay_payment_id;
+          firebase.database().ref('orders').push(orderData).then(() => {
+            alert("✅ Payment successful and order placed!");
+            localStorage.removeItem('cart');
+            window.location.href = "index.html";
+          }).catch(err => {
+            alert("❌ Order failed after payment: " + err.message);
+          });
+        },
+        prefill: {
+          name: name,
+          email: currentUser.email,
+          contact: phone
+        },
+        theme: {
+          color: "#4CAF50"
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    });
+  </script>
+</body>
+</html>

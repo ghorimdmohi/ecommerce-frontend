@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link rel="stylesheet" href="styles/login-signup.css" />
+</head>
+<body>
+  <main class="auth-container">
+    <form id="login-form">
+      <h2>Login</h2>
+      <input type="email" id="login-email" placeholder="Email" required />
+      <input type="password" id="login-password" placeholder="Password" required />
+      <button type="submit">Login</button>
+      <p><a href="signup.html">Don't have an account? Sign Up</a></p>
+      <p><a href="#">Forgot Password?</a></p>
+    </form>
+  </main>
+
+  <!-- ✅ Only Modular Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    // ✅ Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB1MwpAttT8RqbLUL9Qp4IFL80vXe8fvIE",
+      authDomain: "catliza-ecom.firebaseapp.com",
+      projectId: "catliza-ecom",
+      storageBucket: "catliza-ecom.firebasestorage.app",
+      messagingSenderId: "1084646474134",
+      appId: "1:1084646474134:web:642439b16cff42a5759db7"
+    };
+
+    // ✅ Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ✅ Handle login
+    document.getElementById("login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // ✅ Redirect to dashboard
+          window.location.replace("dashboard.html");
+        })
+        .catch((error) => {
+          alert("Login failed: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,15 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Commerce Frontend</title>
-    <link rel="stylesheet" href="styles/main.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Header</title>
+  <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
-    <header>
-        <h1>Welcome to Our Online Store</h1>
-    </header>
-    <script src="scripts/app.js"></script>
+
+  <header class="site-header">
+    <div class="logo">MyShop</div>
+
+    <nav class="nav-menu" id="nav-menu">
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="product.html">Products</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="signup.html">Sign Up</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-icons">
+      <div class="search-bar">
+        <input type="text" placeholder="Search..." />
+      </div>
+      <div class="cart-icon">
+<a href="cart.html" class="cart-icon">
+  🛒 <span class="cart-count">0</span>
+</a>
+      </div>
+      <div class="hamburger" id="hamburger">&#9776;</div>
+    </div>
+  </header>
+  <section class="hero-section">
+  <div class="hero-content">
+    <h1 class="hero-title">Biggest Sale of the Year!</h1>
+    <p class="hero-subtitle">Up to 70% off on selected items. Limited time only.</p>
+    <a href="#products" class="cta-button">Shop Now</a>
+  </div>
+</section>
+<section class="product-section">
+  <h2 class="section-title">Featured Products</h2>
+  <div id="loader" class="loader">Loading products...</div>
+  <div id="error" class="error-message" style="display: none;">Unable to load products. Please try again later.</div>
+  <div id="product-grid" class="product-grid"></div>
+</section>
+<footer style="background: #222; color: #fff; padding: 2rem 1rem; text-align: center;">
+  <div style="max-width: 1200px; margin: auto;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; text-align: left; gap: 2rem;">
+      <div style="flex: 1; min-width: 200px;">
+        <h3 style="color: #4CAF50;">Catliza</h3>
+        <p>Your go-to destination for premium cat products and accessories.</p>
+      </div>
+
+      <div style="flex: 1; min-width: 150px;">
+        <h4>Quick Links</h4>
+        <ul style="list-style: none; padding: 0;">
+          <li><a href="index.html" style="color: #ccc; text-decoration: none;">Home</a></li>
+          <li><a href="shop.html" style="color: #ccc; text-decoration: none;">Shop</a></li>
+          <li><a href="about.html" style="color: #ccc; text-decoration: none;">About</a></li>
+          <li><a href="contact.html" style="color: #ccc; text-decoration: none;">Contact</a></li>
+        </ul>
+      </div>
+
+      <div style="flex: 1; min-width: 200px;">
+        <h4>Contact Us</h4>
+        <p>Email: support@catliza.com</p>
+        <p>Phone: +91 98765 43210</p>
+        <div style="margin-top: 1rem;">
+          <a href="#" style="color: #ccc; margin-right: 10px;">Instagram</a>
+          <a href="#" style="color: #ccc;">Facebook</a>
+        </div>
+      </div>
+    </div>
+
+    <hr style="margin: 2rem 0; border-color: #444;" />
+
+    <p style="color: #aaa;">&copy; 2025 Catliza. All rights reserved.</p>
+  </div>
+</footer>
+
+  <script type="module" defer>
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB1MwpAttT8RqbLUL9Qp4IFL80vXe8fvIE",
+      authDomain: "catliza-ecom.firebaseapp.com",
+      databaseURL: "https://catliza-ecom-default-rtdb.firebaseio.com",
+      projectId: "catliza-ecom",
+      storageBucket: "catliza-ecom.appspot.com",
+      messagingSenderId: "1084646474134",
+      appId: "1:1084646474134:web:642439b16cff42a5759db7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const productsRef = ref(db, 'products');
+    const container = document.getElementById('products-container');
+
+    onValue(productsRef, (snapshot) => {
+      container.innerHTML = ''; // Clear previous content
+      const products = snapshot.val();
+      if (!products) {
+        container.innerHTML = '<p>No products available.</p>';
+        return;
+      }
+
+      Object.entries(products).forEach(([id, product]) => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" loading="lazy" />
+          <h3>${product.name}</h3>
+          <p>${product.description}</p>
+          <div class="price">₹${product.price}</div>
+        `;
+        container.appendChild(card);
+      });
+    });
+  </script>
+
+  <script src="scripts/app.js" defer></script>
+  <script src="scripts/cart.js" defer></script>
+
 </body>
 </html>

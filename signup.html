@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="styles/login-signup.css" />
+</head>
+<body>
+  <main class="auth-container">
+    <form id="signup-form">
+      <h2>Sign Up</h2>
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="signup-email" placeholder="Email" required />
+      <input type="password" id="signup-password" placeholder="Password" required />
+      <input type="password" id="confirm-password" placeholder="Confirm Password" required />
+      <button type="submit">Sign Up</button>
+      <p><a href="login.html">Already have an account? Login</a></p>
+    </form>
+  </main>
+
+  <!-- ✅ Only Modular Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyB1MwpAttT8RqbLUL9Qp4IFL80vXe8fvIE",
+      authDomain: "catliza-ecom.firebaseapp.com",
+      projectId: "catliza-ecom",
+      storageBucket: "catliza-ecom.firebasestorage.app",
+      messagingSenderId: "1084646474134",
+      appId: "1:1084646474134:web:642439b16cff42a5759db7"
+    };
+
+    // ✅ Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ✅ Handle Signup
+    document.getElementById("signup-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+      const confirmPassword = document.getElementById("confirm-password").value;
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name });
+        alert("Signup successful!");
+        window.location.replace("dashboard.html");
+      } catch (error) {
+        alert("Signup failed: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

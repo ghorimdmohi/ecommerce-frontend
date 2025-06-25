@@ -1,0 +1,81 @@
+<!-- product.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product Detail</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header class="site-header">
+    <div class="logo">MyShop</div>
+
+    <nav class="nav-menu" id="nav-menu">
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="product.html">Products</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-icons">
+      <div class="search-bar">
+        <input type="text" placeholder="Search..." />
+      </div>
+      <div class="cart-icon">
+<a href="cart.html" class="cart-icon">
+  🛒 <span class="cart-count">0</span>
+</a>      </div>
+      <div class="hamburger" id="hamburger">&#9776;</div>
+    </div>
+  </header>
+
+
+  <!-- Include your site's header/navigation here -->
+
+  <section class="product-detail-section">
+    <div class="product-detail-container">
+      <div class="product-image">
+        <img id="product-img" src="" alt="Product Image" />
+    <div id="zoom-lens"></div>
+      </div>
+      <div class="product-info">
+        <h1 id="product-title">Loading...</h1>
+    <p id="product-description"></p>
+    <p><strong>Price: $<span id="product-price">0.00</span></strong></p>
+
+    <label for="size-select">Size:</label>
+    <select id="size-select">
+      <option value="S">Small</option>
+      <option value="M" selected>Medium</option>
+      <option value="L">Large</option>
+    </select>
+
+    <div class="quantity-selector">
+      <button id="decrease-qty">−</button>
+      <input type="number" id="quantity" value="1" min="1" max="10">
+      <button id="increase-qty">+</button>
+    </div>
+
+    <p>Total: $<span id="total-price">0.00</span></p>
+    <button id="add-to-cart-btn">Add to Cart</button>
+    <p id="cart-feedback" class="hidden">✔️ Added to cart!</p>
+    <nav>
+  <span class="cart-count">0</span>
+</nav>
+      </div>
+    </div>
+  </section>
+<main class="product-detail">
+
+</main>
+
+  <!-- Include your site's footer here -->
+
+  <script src="scripts/product.js"></script>
+  <script src="scripts/cart.js"></script>
+
+</body>
+</html>
